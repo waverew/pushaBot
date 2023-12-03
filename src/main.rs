@@ -1,4 +1,6 @@
 use teloxide::{prelude::*, utils::command::BotCommands};
+use std::fs::*;
+use std::io::Write;
 
 #[tokio::main]
 async fn main() {
@@ -20,7 +22,11 @@ enum Command {
     #[command(description = "handle a username and an age.", parse_with = "split")]
     UsernameAndAge { username: String, age: u8 },
     #[command(description = "test")]
-    Test
+    Test,
+    #[command(description = "start interaction")]
+    Start,
+    #[command(description = "take user data")]
+    Login(String)
 }
 
 async fn answer(bot: Bot, msg: Message, cmd: Command) -> ResponseResult<()> {
@@ -33,7 +39,13 @@ async fn answer(bot: Bot, msg: Message, cmd: Command) -> ResponseResult<()> {
             bot.send_message(msg.chat.id, format!("Your username is @{username} and age is {age}."))
                 .await?
         }
-        Command::Test => bot.send_message(msg.chat.id, format!("test")).await?
+        Command::Test => bot.send_message(msg.chat.id, format!("test")).await?,
+        Command::Start => bot.send_message(msg.chat.id, format!("Здравствуйте, добро пожаловать в бота озеленения и ко, пожалуйста вызовите команду /login чтобы я смог Вас  запомнить")).await?,
+        Command::Login(login) => {
+            let mut data = File::open("src/data.txt")?;
+            data.write(login.as_bytes())?;
+            bot.send_message(msg.chat.id, format!("done")).await?
+        }
     };
 
     Ok(())
