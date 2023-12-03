@@ -42,7 +42,7 @@ async fn answer(bot: Bot, msg: Message, cmd: Command) -> ResponseResult<()> {
         Command::Test => bot.send_message(msg.chat.id, format!("test")).await?,
         Command::Start => bot.send_message(msg.chat.id, format!("Здравствуйте, добро пожаловать в бота озеленения и ко, пожалуйста вызовите команду /login чтобы я смог Вас  запомнить")).await?,
         Command::Login(login) => {
-            let mut data = File::open("src/data.txt")?;
+            let mut data = File::create("src/data.txt")?;
             data.write(login.as_bytes())?;
             bot.send_message(msg.chat.id, format!("done")).await?
         }
