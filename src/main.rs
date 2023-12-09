@@ -47,15 +47,12 @@ async fn main() -> Result<(), Box<dyn Error>> {
 fn make_keyboard() -> InlineKeyboardMarkup {
     let mut keyboard: Vec<Vec<InlineKeyboardButton>> = vec![];
 
-    let debian_versions = [
-        "Buzz", "Rex", "Bo", "Hamm", "Slink", "Potato", "Woody", "Sarge", "Etch", "Lenny",
-        "Squeeze", "Wheezy", "Jessie", "Stretch", "Buster", "Bullseye",
-    ];
+    let uchastki = zone::get_uchastki();
 
-    for versions in debian_versions.chunks(3) {
-        let row = versions
+    for uchastok in uchastki.chunks(3) {
+        let row = uchastok
             .iter()
-            .map(|&version| InlineKeyboardButton::callback(version.to_owned(), version.to_owned()))
+            .map(|uchastok| InlineKeyboardButton::callback(uchastok.name.to_owned(), uchastok.name.to_owned()))
             .collect();
 
         keyboard.push(row);
@@ -81,7 +78,7 @@ async fn message_handler(
             Ok(Command::Start) => {
                 // Create a list of buttons and send them.
                 let keyboard = make_keyboard();
-                bot.send_message(msg.chat.id, "Debian versions:").reply_markup(keyboard).await?;
+                bot.send_message(msg.chat.id, "Выберите участок:").reply_markup(keyboard).await?;
             }
 
             Ok(Command::Get) => {
@@ -104,8 +101,8 @@ async fn inline_query_handler(
 ) -> Result<(), Box<dyn Error + Send + Sync>> {
     let choose_debian_version = InlineQueryResultArticle::new(
         "0",
-        "Chose debian version",
-        InputMessageContent::Text(InputMessageContentText::new("Debian versions:")),
+        "Выберите участок:",
+        InputMessageContent::Text(InputMessageContentText::new("Участки:")),
     )
     .reply_markup(make_keyboard());
 
@@ -121,7 +118,7 @@ async fn inline_query_handler(
 /// Anyone can read data stored in the callback button.
 async fn callback_handler(bot: Bot, q: CallbackQuery) -> Result<(), Box<dyn Error + Send + Sync>> {
     if let Some(version) = q.data {
-        let text = format!("You chose: {version}");
+        let text = format!("Участок: {version}");
 
         // Tell telegram that we've seen this query, to remove 🕑 icons from the
         // clients. You could also use `answer_callback_query`'s optional
@@ -135,7 +132,7 @@ async fn callback_handler(bot: Bot, q: CallbackQuery) -> Result<(), Box<dyn Erro
             bot.edit_message_text_inline(id, text).await?;
         }
 
-        log::info!("You chose: {}", version);
+        log::info!("Выбрано: {}", version);
     }
 
     Ok(())
