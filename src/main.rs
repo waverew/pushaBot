@@ -1,4 +1,5 @@
 mod zone;
+mod dialogue;
 use std::error::Error;
 use teloxide::{
     payloads::SendMessageSetters,
@@ -23,7 +24,10 @@ enum Command {
     Start,
 
     #[command(description = "test")]
-    Get
+    Get,
+
+    #[command(description = "add")]
+    Add
 }
 
 
@@ -92,6 +96,10 @@ async fn message_handler(
                 };
                 let mut uch = ouch.get_uchastki();
                 bot.send_message(msg.chat.id, uch[0].name.to_string()).await?;
+            }
+
+            Ok(Command::Add) => {
+             dialogue::main();   
             }
 
             Err(_) => {
