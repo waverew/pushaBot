@@ -13,6 +13,10 @@ pub struct Zone<'a> {
     commentary: &'a str
 }
 
+pub struct Uchastki<'a> {
+    pub uchastki: Vec<Uchastok<'a>>
+}
+
 const Y: Zone = Zone{
     name: "лес",
     observables: "нужно удобрить",
@@ -26,25 +30,35 @@ const X: Uchastok = Uchastok {
     description: "небольшой поселок"
 };
 
-pub fn get_uchastki<'b>() -> Vec<Uchastok<'b>> {
-    let mut uchastki = vec![];
-    uchastki.push(X);
-    uchastki
+impl Uchastki<'_> {
+    pub fn get_uchastki(&mut self) -> Vec<Uchastok> {
+        self.uchastki.push(X);
+        let ret = self.uchastki.clone();
+        ret
+    }
+
+    pub fn add_uchastki(&mut self, uch: Uchastok) -> Uchastok{
+        let ret = uch.clone();
+        let mut uchastki = self.uchastki.clone();
+        uchastki.push(ret);
+        self.uchastki = uchastki;
+        uch
+    }
+
+    /*pub fn edit_uchastok<'a>(&mut self, uch: Uchastok, new_uchastok: Uchastok) -> Uchastok {
+        let mut k: usize;
+        self.uchastki.push(X);
+        for i in 0..self.uchastki.len() {
+            if self.uchastki[i] == uch {
+                self.uchastki[i] = new_uchastok.clone();
+                return self.uchastki[i];
+            }
+        }
+        X
+    }*/
 }
 
-pub fn add_uchastki(uch: Uchastok) -> Uchastok {
-    let mut uchastki = vec![];
-    uchastki.push(uch);
-    uch
-}
-pub fn edit_uchastok<'a>(uch: Uchastok<'a>, new_uchastok: Uchastok<'a>) -> Uchastok<'a> {
-    let mut uchastki = vec![];
-    let mut k: usize;
-    uchastki.push(X);
-    for i in 0..uchastki.len() {
-        if uchastki[i] == uch {
-            uchastki[i] = new_uchastok.clone();
-        }
-    }
-    new_uchastok
-}
+
+
+
+

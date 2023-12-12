@@ -27,6 +27,7 @@ enum Command {
 }
 
 
+
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     pretty_env_logger::init();
@@ -47,7 +48,11 @@ async fn main() -> Result<(), Box<dyn Error>> {
 fn make_keyboard() -> InlineKeyboardMarkup {
     let mut keyboard: Vec<Vec<InlineKeyboardButton>> = vec![];
 
-    let uchastki = zone::get_uchastki();
+    let mut uchastki1 = zone::Uchastki
+    {
+        uchastki: vec![]
+    };
+    let uchastki = uchastki1.get_uchastki();
 
     for uchastok in uchastki.chunks(3) {
         let row = uchastok
@@ -82,7 +87,10 @@ async fn message_handler(
             }
 
             Ok(Command::Get) => {
-                let uch = zone::get_uchastki();
+                let mut ouch = zone::Uchastki{
+                    uchastki: vec![]
+                };
+                let mut uch = ouch.get_uchastki();
                 bot.send_message(msg.chat.id, uch[0].name.to_string()).await?;
             }
 
