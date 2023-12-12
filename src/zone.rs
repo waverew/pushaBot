@@ -30,32 +30,40 @@ const X: Uchastok = Uchastok {
     description: "небольшой поселок"
 };
 
-impl Uchastki<'_> {
+impl<'a>  Uchastki<'_> {
     pub fn get_uchastki(&mut self) -> Vec<Uchastok> {
         self.uchastki.push(X);
         let ret = self.uchastki.clone();
         ret
     }
 
-    pub fn add_uchastki(&mut self, uch: Uchastok) -> Uchastok{
-        let ret = uch.clone();
+    pub fn add_uchastki(&mut self, uch: Uchastok<'a> ) -> Uchastok<'a> {
         let mut uchastki = self.uchastki.clone();
-        uchastki.push(ret);
-        self.uchastki = uchastki;
+        uchastki.push(uch.clone());
         uch
     }
 
-    /*pub fn edit_uchastok<'a>(&mut self, uch: Uchastok, new_uchastok: Uchastok) -> Uchastok {
+    /*pub fn edit_uchastok(&'a mut self, uch: Uchastok) -> Uchastok {
         let mut k: usize;
         self.uchastki.push(X);
         for i in 0..self.uchastki.len() {
             if self.uchastki[i] == uch {
-                self.uchastki[i] = new_uchastok.clone();
+                self.uchastki[i] = new_uchastok;
                 return self.uchastki[i];
             }
         }
         X
     }*/
+
+    pub fn delete_uchastok<T>(&mut self, uch: Uchastok) -> Result<u8, &str>{
+        for i in 0..self.uchastki.len() {
+            if self.uchastki[i] == uch {
+                self.uchastki.remove(i);
+                return Ok(0);
+            }
+        }
+        Err("участок не найден")
+    }
 }
 
 
