@@ -1,16 +1,16 @@
 #[derive(PartialEq, Copy, Clone)]
 pub struct Uchastok<'a> {
-    zone: Zone<'a>,
+    pub zone: Zone<'a>,
     pub name: &'a str,
-    description: &'a str
+    pub description: &'a str
 }
 
 #[derive(PartialEq, Copy, Clone)]
 pub struct Zone<'a> {
-    name: &'a str,
-    observables: &'a str,
-    infrastructure: &'a str,
-    commentary: &'a str
+    pub name: &'a str,
+    pub observables: &'a str,
+    pub infrastructure: &'a str,
+    pub commentary: &'a str
 }
 
 pub struct Uchastki<'a> {

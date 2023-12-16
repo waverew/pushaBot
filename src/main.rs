@@ -34,7 +34,7 @@ enum Command {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
-    pretty_env_logger::init();
+    //pretty_env_logger::init();
     log::info!("Starting buttons bot...");
 
     let bot = Bot::from_env();
@@ -95,11 +95,32 @@ async fn message_handler(
                     uchastki: vec![]
                 };
                 let mut uch = ouch.get_uchastki();
-                bot.send_message(msg.chat.id, uch[0].name.to_string()).await?;
+                for i in 0..uch.len() {
+                    bot.send_message(msg.chat.id, uch[i].name.to_string()).await?;
+                }
             }
 
             Ok(Command::Add) => {
-             dialogue::main();   
+                let mut ouch = zone::Uchastki{
+                    uchastki: vec![]
+                };
+                
+                let y: zone::Zone = zone::Zone {
+                    name: "бутово",
+                    observables: "нужно удобрить",
+                    infrastructure: "трудно подъехать",
+                    commentary: "все плохо"
+                };
+                
+                let x: zone::Uchastok = zone::Uchastok {
+                    zone: y,
+                    name: "бутово",
+                    description: "полная залупа"
+                };
+
+                let mut uch = ouch.add_uchastki(x);
+                
+                bot.send_message(msg.chat.id, "Успешно добавлен участок ".to_string() + x.name).await?;
             }
 
             Err(_) => {
