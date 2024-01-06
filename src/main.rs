@@ -9,6 +9,7 @@ use teloxide::{
         InputMessageContentText, Me,
     },
     utils::command::BotCommands,
+    dispatching::dialogue::InMemStorage,
 };
 
 
@@ -30,6 +31,20 @@ enum Command {
     Add
 }
 
+#[derive(Clone, Default)]
+pub enum State {
+    #[default]
+    Start,
+    ReceiveFullName,
+    ReceiveAge {
+        full_name: String,
+    },
+    ReceiveLocation {
+        full_name: String,
+        age: u8,
+    },
+}
+
 
 
 #[tokio::main]
@@ -42,9 +57,17 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let handler = dptree::entry()
         .branch(Update::filter_message().endpoint(message_handler))
         .branch(Update::filter_callback_query().endpoint(callback_handler))
-        .branch(Update::filter_inline_query().endpoint(inline_query_handler));
+        .branch(Update::filter_inline_query().endpoint(inline_query_handler))
+        .branch(Update::filter_message()
+        .enter_dialogue::<Message, InMemStorage<State>, State>()
+        .branch(dptree::case![State::Start].endpoint(dialogue::start))
+        .branch(dptree::case![State::ReceiveFullName].endpoint(dialogue::receive_full_name))
+        .branch(dptree::case![State::ReceiveAge { full_name }].endpoint(dialogue::receive_age))
+        .branch(
+            dptree::case![State::ReceiveLocation { full_name, age }].endpoint(dialogue::receive_location),
+        ));
 
-    Dispatcher::builder(bot, handler).enable_ctrlc_handler().build().dispatch().await;
+    Dispatcher::builder(bot, handler).dependencies(dptree::deps![InMemStorage::<State>::new()]).enable_ctrlc_handler().build().dispatch().await;
     Ok(())
 }
 

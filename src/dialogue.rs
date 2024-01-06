@@ -57,13 +57,13 @@ pub async fn main() {
     .await;
 }
 
-async fn start(bot: Bot, dialogue: MyDialogue, msg: Message) -> HandlerResult {
+pub async fn start(bot: Bot, dialogue: MyDialogue, msg: Message) -> HandlerResult {
     bot.send_message(msg.chat.id, "Let's start! What's your full name?").await?;
     dialogue.update(State::ReceiveFullName).await?;
     Ok(())
 }
 
-async fn receive_full_name(bot: Bot, dialogue: MyDialogue, msg: Message) -> HandlerResult {
+pub async fn receive_full_name(bot: Bot, dialogue: MyDialogue, msg: Message) -> HandlerResult {
     match msg.text() {
         Some(text) => {
             bot.send_message(msg.chat.id, "How old are you?").await?;
@@ -77,7 +77,7 @@ async fn receive_full_name(bot: Bot, dialogue: MyDialogue, msg: Message) -> Hand
     Ok(())
 }
 
-async fn receive_age(
+pub async fn receive_age(
     bot: Bot,
     dialogue: MyDialogue,
     full_name: String, // Available from `State::ReceiveAge`.
@@ -96,7 +96,7 @@ async fn receive_age(
     Ok(())
 }
 
-async fn receive_location(
+pub async fn receive_location(
     bot: Bot,
     dialogue: MyDialogue,
     (full_name, age): (String, u8), // Available from `State::ReceiveLocation`.
