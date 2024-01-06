@@ -12,6 +12,8 @@ use teloxide::{
     dispatching::dialogue::InMemStorage,
 };
 
+type MyDialogue = Dialogue<State, InMemStorage<State>>;
+
 
 
 /// These commands are supported:
@@ -28,7 +30,10 @@ enum Command {
     Get,
 
     #[command(description = "add")]
-    Add
+    Add,
+
+    #[command(description = "add")]
+    GatherInfo
 }
 
 #[derive(Clone, Default)]
@@ -55,19 +60,20 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let bot = Bot::from_env();
 
     let handler = dptree::entry()
-        .branch(Update::filter_message().endpoint(message_handler))
-        .branch(Update::filter_callback_query().endpoint(callback_handler))
-        .branch(Update::filter_inline_query().endpoint(inline_query_handler))
-        .branch(Update::filter_message()
-        .enter_dialogue::<Message, InMemStorage<State>, State>()
+        .branch(Update::filter_message().enter_dialogue::<Message, InMemStorage<State>, State>()
         .branch(dptree::case![State::Start].endpoint(dialogue::start))
         .branch(dptree::case![State::ReceiveFullName].endpoint(dialogue::receive_full_name))
         .branch(dptree::case![State::ReceiveAge { full_name }].endpoint(dialogue::receive_age))
-        .branch(
-            dptree::case![State::ReceiveLocation { full_name, age }].endpoint(dialogue::receive_location),
-        ));
+        .branch(dptree::case![State::ReceiveLocation { full_name, age }].endpoint(dialogue::receive_location),
+        ).endpoint(message_handler))
+        .branch(Update::filter_callback_query().endpoint(callback_handler))
+        .branch(Update::filter_inline_query().endpoint(inline_query_handler));
 
-    Dispatcher::builder(bot, handler).dependencies(dptree::deps![InMemStorage::<State>::new()]).enable_ctrlc_handler().build().dispatch().await;
+    Dispatcher::builder(bot, handler).dependencies(dptree::deps![InMemStorage::<State>::new()])
+    .enable_ctrlc_handler()
+    .build()
+    .dispatch()
+    .await;
     Ok(())
 }
 
@@ -144,6 +150,13 @@ async fn message_handler(
                 let mut uch = ouch.add_uchastki(x);
                 
                 bot.send_message(msg.chat.id, "Успешно добавлен участок ".to_string() + x.name).await?;
+            }
+
+            Ok(Command::GatherInfo) => {
+                bot.send_message(msg.chat.id, "Let's start! What's your full name?").await?;
+                
+                bot.send_message(msg.chat.id, "How old are you?").await?;
+                
             }
 
             Err(_) => {
