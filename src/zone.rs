@@ -1,3 +1,14 @@
+use teloxide::{
+    payloads::SendMessageSetters,
+    prelude::*,
+    types::{
+        InlineKeyboardButton, InlineKeyboardMarkup, InlineQueryResultArticle, InputMessageContent,
+        InputMessageContentText, Me,
+    },
+    utils::command::BotCommands,
+    dispatching::dialogue::InMemStorage,
+};
+
 #[derive(PartialEq, Copy, Clone)]
 pub struct Uchastok<'a> {
     pub zone: Zone<'a>,
@@ -43,6 +54,21 @@ impl<'a>  Uchastki<'_> {
         uch
     }
 
+    pub fn make_keyboard(self) -> InlineKeyboardMarkup {
+
+        let mut keyboard: Vec<Vec<InlineKeyboardButton>> = vec![];
+    
+        for uchastok in self.uchastki.chunks(3) {
+            let row = uchastok
+                .iter()
+                .map(|uchastok| InlineKeyboardButton::callback(uchastok.name.to_owned(), uchastok.name.to_owned()))
+                .collect();
+    
+            keyboard.push(row);
+        }
+    
+        InlineKeyboardMarkup::new(keyboard)
+    }
     /*pub fn edit_uchastok(&'a mut self, uch: Uchastok) -> Uchastok {
         let mut k: usize;
         self.uchastki.push(X);
